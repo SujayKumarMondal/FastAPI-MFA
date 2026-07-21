@@ -422,12 +422,10 @@
           <div class="api-card">
             <h3>POST /auth/register</h3>
             <p>Register a new user account and store hashed credentials safely.</p>
-            <code>{ "username": "user", "password": "pass", "email": "optional" }</code>
           </div>
           <div class="api-card">
             <h3>POST /auth/token</h3>
             <p>Authenticate with username/password and receive a JWT access token.</p>
-            <code>form data: username, password, [mfa_token]</code>
           </div>
           <div class="api-card">
             <h3>POST /mfa/setup</h3>
@@ -440,7 +438,6 @@
           <div class="api-card">
             <h3>POST /mfa/verify</h3>
             <p>Validate the Authenticator token and enable MFA for the user.</p>
-            <code>{ "username": "user", "access_token": "bearer", "token": "123456" }</code>
           </div>
         </div>
       </section>
@@ -479,7 +476,7 @@
           <span class="stack-chip">cryptography</span>
           <span class="stack-chip">Jinja2</span>
           <span class="stack-chip">Uvicorn</span>
-          <span class="stack-chip">SQLite / PostgreSQL</span>
+          <span class="stack-chip">PostgreSQL</span>
         </div>
       </section>
 
