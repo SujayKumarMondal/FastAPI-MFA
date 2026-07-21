@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FastAPI MFA Backend</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #04091c;
+        color: #f5f7ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at top left, rgba(56, 115, 255, 0.22), transparent 25%),
+          radial-gradient(circle at bottom right, rgba(157, 0, 255, 0.18), transparent 24%),
+          #04091c;
+        overflow-x: hidden;
+      }
+
+      main {
+        width: min(1200px, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 3rem 0 5rem;
+      }
+
+      header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+        gap: 2rem;
+        align-items: center;
+        padding-bottom: 3rem;
+      }
+
+      h1 {
+        font-size: clamp(3rem, 4vw, 4.4rem);
+        line-height: 0.95;
+        margin: 0 0 1rem;
+        letter-spacing: -0.05em;
+      }
+
+      p.lead {
+        max-width: 58ch;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        margin: 0 0 1.75rem;
+        color: #d9defa;
+      }
+
+      .badge {
+        display: inline-flex;
+        padding: 0.5rem 0.9rem;
+        gap: 0.5rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        color: #b0b8ff;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.16em;
+      }
+
+      .hero-panel {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .hero-panel a {
+        width: fit-content;
+        color: #fff;
+        background: linear-gradient(135deg, #6e8dff, #ae4bff);
+        text-decoration: none;
+        padding: 0.95rem 1.5rem;
+        border-radius: 999px;
+        box-shadow: 0 18px 50px rgba(107, 81, 255, 0.22);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .hero-panel a:hover {
+        transform: translateY(-2px);
+      }
+
+      .hero-image {
+        position: relative;
+        min-height: 420px;
+        border-radius: 2rem;
+        overflow: hidden;
+        background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.22);
+      }
+
+      .hero-image::before,
+      .hero-image::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.38;
+      }
+
+      .hero-image::before {
+        width: 220px;
+        height: 220px;
+        top: -30px;
+        right: -30px;
+        background: rgba(111, 168, 255, 0.55);
+        filter: blur(45px);
+      }
+
+      .hero-image::after {
+        width: 260px;
+        height: 260px;
+        bottom: -40px;
+        left: -40px;
+        background: rgba(180, 77, 255, 0.55);
+        filter: blur(45px);
+      }
+
+      .preview {
+        position: absolute;
+        inset: 1.5rem;
+        border-radius: 1.8rem;
+        padding: 2rem;
+        background: rgba(5, 9, 26, 0.82);
+        display: grid;
+        gap: 1rem;
+        overflow: hidden;
+      }
+
+      .preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .dot-group {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.32);
+      }
+
+      .window-title {
+        font-size: 0.9rem;
+        color: #99a7ff;
+      }
+
+      .preview-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .preview-card {
+        padding: 1rem;
+        border-radius: 1.4rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        min-height: 120px;
+      }
+
+      .preview-card h3 {
+        margin: 0 0 0.75rem;
+        font-size: 1rem;
+        color: #eef2ff;
+      }
+
+      section {
+        margin-top: 4rem;
+      }
+
+      .section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .section-title h2 {
+        margin: 0;
+        font-size: clamp(2rem, 3vw, 2.6rem);
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .feature-card,
+      .api-card,
+      .stack-card {
+        padding: 1.75rem;
+        border-radius: 1.8rem;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.14);
+        backdrop-filter: blur(12px);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .feature-card::before,
+      .api-card::before,
+      .stack-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.04), transparent 45%);
+        pointer-events: none;
+      }
+
+      .feature-card h3,
+      .api-card h3,
+      .stack-card h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: #fff;
+      }
+
+      .feature-card p,
+      .api-card p,
+      .stack-card p {
+        margin: 0;
+        color: #d8dcff;
+        line-height: 1.75;
+      }
+
+      .workflow {
+        display: grid;
+        gap: 1.5rem;
+      }
+
+      .workflow-step {
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 1rem;
+        align-items: start;
+        padding: 1.2rem 1.4rem;
+        border-radius: 1.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .step-icon {
+        width: 56px;
+        height: 56px;
+        display: grid;
+        place-items: center;
+        border-radius: 1.25rem;
+        background: rgba(109, 111, 255, 0.16);
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.1rem;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+      }
+
+      .workflow-step h4 {
+        margin: 0 0 0.4rem;
+        font-size: 1.1rem;
+      }
+
+      .workflow-step p {
+        margin: 0;
+        color: #bfc7ff;
+      }
+
+      .api-card code {
+        display: block;
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 1.25rem;
+        background: rgba(0, 0, 0, 0.25);
+        color: #c8ddff;
+        font-size: 0.95rem;
+      }
+
+      .stack-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+      }
+
+      .stack-chip {
+        padding: 0.8rem 1rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #e7eafe;
+        font-size: 0.95rem;
+      }
+
+      footer {
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      footer p {
+        margin: 0;
+        color: #8f96b7;
+      }
+
+      @media (max-width: 860px) {
+        header {
+          grid-template-columns: 1fr;
+        }
+
+        .preview-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <span class="badge">FastAPI + TOTP MFA</span>
+          <h1>Secure API authentication with next-level MFA experience.</h1>
+          <p class="lead">
+            FastAPI MFA Backend is a lightweight authentication backend that combines JWT login, encrypted TOTP secrets,
+            and Authenticator app validation for modern security flows.
+          </p>
+          <div class="hero-panel">
+            <a href="#workflow">Explore workflow</a>
+            <a href="#endpoints">See endpoints</a>
+          </div>
+        </div>
+
+        <div class="hero-image">
+          <div class="preview">
+            <div class="preview-header">
+              <div class="dot-group">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
+              <div class="window-title">FastAPI MFA Dashboard</div>
+            </div>
+            <div class="preview-grid">
+              <div class="preview-card">
+                <h3>JWT Authentication</h3>
+                <p>Secure token issuance and session-less API access using OAuth2 password flow and Bearer tokens.</p>
+              </div>
+              <div class="preview-card">
+                <h3>TOTP Authenticator</h3>
+                <p>Generate and verify codes with Google Authenticator / Authy through encrypted MFA secrets.</p>
+              </div>
+              <div class="preview-card">
+                <h3>Encrypted Secrets</h3>
+                <p>MFA secrets are encrypted with Fernet-backed key material for safer local storage.</p>
+              </div>
+              <div class="preview-card">
+                <h3>Clean API Docs</h3>
+                <p>Swagger integration makes it easy to explore the routes directly from your browser.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section id="workflow">
+        <div class="section-title">
+          <h2>Project Workflow</h2>
+          <p>Animated flow for secure onboarding and MFA setup.</p>
+        </div>
+        <div class="workflow">
+          <div class="workflow-step">
+            <div class="step-icon">1</div>
+            <div>
+              <h4>Register user</h4>
+              <p>Create a new account with username, password, and optional email address.</p>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-icon">2</div>
+            <div>
+              <h4>Login with JWT</h4>
+              <p>Obtain a bearer token from `/auth/token` for authenticated access.</p>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-icon">3</div>
+            <div>
+              <h4>Setup MFA</h4>
+              <p>Call `/mfa/setup` to generate a secret and scan the QR code in your Authenticator app.</p>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-icon">4</div>
+            <div>
+              <h4>Verify code</h4>
+              <p>Send the TOTP token with username and access token to `/mfa/verify`.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="endpoints">
+        <div class="section-title">
+          <h2>Core Endpoints</h2>
+          <p>All of these routes are ready in Swagger once the app is running.</p>
+        </div>
+        <div class="grid-3">
+          <div class="api-card">
+            <h3>POST /auth/register</h3>
+            <p>Register a new user account and store hashed credentials safely.</p>
+            <code>{ "username": "user", "password": "pass", "email": "optional" }</code>
+          </div>
+          <div class="api-card">
+            <h3>POST /auth/token</h3>
+            <p>Authenticate with username/password and receive a JWT access token.</p>
+            <code>form data: username, password, [mfa_token]</code>
+          </div>
+          <div class="api-card">
+            <h3>POST /mfa/setup</h3>
+            <p>Generate a TOTP secret and QR code for Authenticator app setup.</p>
+          </div>
+          <div class="api-card">
+            <h3>POST /mfa/code</h3>
+            <p>Generate a verification code from shared secret and authenticated user state.</p>
+          </div>
+          <div class="api-card">
+            <h3>POST /mfa/verify</h3>
+            <p>Validate the Authenticator token and enable MFA for the user.</p>
+            <code>{ "username": "user", "access_token": "bearer", "token": "123456" }</code>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-title">
+          <h2>Project Highlights</h2>
+          <p>A modern backend design with strong authentication patterns.</p>
+        </div>
+        <div class="grid-3">
+          <div class="feature-card">
+            <h3>Main Goal</h3>
+            <p>Build a simple yet powerful MFA-ready API backend using FastAPI and TOTP.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Objectives</h3>
+            <p>Secure login, encrypted secret storage, transparent API docs, and clean token flow.</p>
+          </div>
+          <div class="feature-card">
+            <h3>User Experience</h3>
+            <p>Make MFA setup easy with a scannable QR code and intuitive verification step.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-title">
+          <h2>Tech Stack</h2>
+          <p>Fast, secure, and developer-friendly tooling.</p>
+        </div>
+        <div class="stack-grid">
+          <span class="stack-chip">FastAPI</span>
+          <span class="stack-chip">SQLModel / SQLAlchemy</span>
+          <span class="stack-chip">PyJWT</span>
+          <span class="stack-chip">pyotp</span>
+          <span class="stack-chip">cryptography</span>
+          <span class="stack-chip">Jinja2</span>
+          <span class="stack-chip">Uvicorn</span>
+          <span class="stack-chip">SQLite / PostgreSQL</span>
+        </div>
+      </section>
+
+      <footer>
+        <p>FastAPI MFA Backend — clean authentication with JWT and Authenticator-based MFA.</p>
+      </footer>
+    </main>
+  </body>
+</html>

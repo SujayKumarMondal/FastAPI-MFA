@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+sqlmodel
+sqlalchemy
+passlib[bcrypt]
+PyJWT
+pyotp
+python-multipart
+python-dotenv
+qrcode
+Pillow
+gunicorn
+psycopg2
+psycopg2-binary
+pydantic-settings
+cryptography
+jinja2
