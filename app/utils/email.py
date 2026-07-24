@@ -1,11 +1,18 @@
+import logging
 import smtplib
 from email.message import EmailMessage
 from typing import Optional
 
 from ..core import settings
 
+logger = logging.getLogger("app.email")
+
 
 def send_email(subject: str, body: str, to: str, html: Optional[str] = None) -> None:
+    if not settings.EMAIL_HOST and not settings.EMAIL_HOST_USER:
+        logger.info("Email delivery skipped because SMTP settings are not configured. To=%s", to)
+        return
+
     msg = EmailMessage()
     msg["Subject"] = subject
     msg["From"] = settings.EMAIL_HOST_USER or "no-reply@example.com"

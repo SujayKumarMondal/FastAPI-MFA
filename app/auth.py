@@ -8,7 +8,7 @@ from sqlmodel import Session
 
 from .core import settings
 from .schemas import TokenData
-from .crud import verify_password, get_user_by_username
+from .crud import get_user_by_username
 from .db import get_session
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
@@ -21,8 +21,17 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-    return encoded_jwt
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
 def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)):
@@ -41,6 +50,15 @@ def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Dep
         raise credentials_exception
 
     user = get_user_by_username(session, token_data.username)
-    if user is None:
+    if user is None or not user.is_active:
         raise credentials_exception
     return user
+
+
+def require_roles(*allowed_roles):
+    def dependency(current_user=Depends(get_current_user)):
+        if current_user.role not in allowed_roles:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+        return current_user
+
+    return dependency

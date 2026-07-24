@@ -5,7 +5,7 @@ FROM python:3.11.9-slim
 WORKDIR /app
 
 # Copy requirements first
-COPY requirements.txt .
+COPY requirements.txt ./
 
 # Install packages
 RUN pip install --no-cache-dir -r requirements.txt
@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 6004
 
 # Run application
-CMD ["uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "6004", "--reload"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "6004"]

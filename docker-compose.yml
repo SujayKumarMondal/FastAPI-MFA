@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  api:
+    build: .
+    ports:
+      - "6004:6004"
+    environment:
+      SECRET_KEY: dev-secret-key-change-me
+      ENCRYPTION_KEY: dev-encryption-key
+      ALLOWED_ORIGINS: http://localhost:3000

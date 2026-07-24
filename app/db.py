@@ -1,11 +1,14 @@
+import logging
 from sqlmodel import SQLModel, create_engine, Session
 from sqlalchemy import text
 from .core import settings
 
+logger = logging.getLogger("app.db")
 
 DATABASE_URL = settings.database_url
 
 engine = create_engine(DATABASE_URL, echo=False)
+logger.info("Database configured for engine=%s host=%s db=%s schema=%s", settings.DB_ENGINE, settings.DB_HOST, settings.DB_NAME, settings.DB_SCHEMA)
 
 
 def get_session():
