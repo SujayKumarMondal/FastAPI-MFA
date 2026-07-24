@@ -238,6 +238,16 @@
         line-height: 1.75;
       }
 
+      .feature-card .meta {
+        margin-top: 0.9rem;
+        color: #c7d0ff;
+        font-size: 0.95rem;
+      }
+
+      .feature-card .meta strong {
+        color: #ffffff;
+      }
+
       .workflow {
         display: grid;
         gap: 1.5rem;
@@ -340,6 +350,7 @@
           </p>
           <div class="hero-panel">
             <a href="#workflow">Explore workflow</a>
+            <a href="#features">View features</a>
             <a href="#endpoints">See endpoints</a>
           </div>
         </div>
@@ -409,6 +420,69 @@
               <h4>Verify code</h4>
               <p>Send the TOTP token with username and access token to `/mfa/verify`.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="section-title">
+          <h2>Implemented Backend Features</h2>
+          <p>Professional-grade capabilities built for real-world authentication and API security.</p>
+        </div>
+        <div class="grid-3">
+          <div class="feature-card">
+            <h3>Authentication & JWT Sessions</h3>
+            <p>Users can register, authenticate, and access protected routes using secure bearer tokens. This is the core of any modern backend identity layer.</p>
+            <p class="meta"><strong>Endpoints:</strong> POST /auth/register, POST /auth/token</p>
+            <p class="meta"><strong>DB tables:</strong> user</p>
+          </div>
+          <div class="feature-card">
+            <h3>Refresh Token Rotation</h3>
+            <p>Access tokens can be renewed safely without forcing the user to log in again. This improves session resilience and reduces friction in production applications.</p>
+            <p class="meta"><strong>Endpoints:</strong> POST /auth/refresh</p>
+            <p class="meta"><strong>DB tables:</strong> refreshtoken, user</p>
+          </div>
+          <div class="feature-card">
+            <h3>MFA with TOTP</h3>
+            <p>Users can enable two-factor authentication through authenticator apps such as Google Authenticator or Authy. This significantly strengthens account security.</p>
+            <p class="meta"><strong>Endpoints:</strong> POST /mfa/setup, POST /mfa/code, POST /mfa/verify</p>
+            <p class="meta"><strong>DB tables:</strong> user</p>
+          </div>
+          <div class="feature-card">
+            <h3>Password Recovery & Email Verification</h3>
+            <p>Forgot-password and verification flows are built to support real-world account recovery. They improve trustworthiness and reduce onboarding friction.</p>
+            <p class="meta"><strong>Endpoints:</strong> POST /auth/forgot-password, POST /auth/reset-password, POST /auth/verify-email</p>
+            <p class="meta"><strong>DB tables:</strong> passwordresettoken, emailverificationtoken, user</p>
+          </div>
+          <div class="feature-card">
+            <h3>Role-Based Access Control</h3>
+            <p>Administrative routes can be restricted to authorized users with roles such as admin. This is essential for secure multi-user systems and internal tools.</p>
+            <p class="meta"><strong>Endpoints:</strong> GET /auth/admin/users</p>
+            <p class="meta"><strong>DB tables:</strong> user</p>
+          </div>
+          <div class="feature-card">
+            <h3>Profile & Account Management</h3>
+            <p>Users can update their profile, change their password, and deactivate or delete their accounts. This creates a more complete and professional backend experience.</p>
+            <p class="meta"><strong>Endpoints:</strong> GET /auth/me, PATCH /auth/me, POST /auth/change-password, POST /auth/deactivate, POST /auth/delete-account</p>
+            <p class="meta"><strong>DB tables:</strong> user</p>
+          </div>
+          <div class="feature-card">
+            <h3>Rate Limiting & Security Protection</h3>
+            <p>Login attempts are limited to reduce brute-force abuse and protect the authentication layer. This is a critical production safety measure.</p>
+            <p class="meta"><strong>Endpoints:</strong> POST /auth/token</p>
+            <p class="meta"><strong>DB tables:</strong> user</p>
+          </div>
+          <div class="feature-card">
+            <h3>Structured Logging & Health Checks</h3>
+            <p>Request handling and errors are logged clearly, and the service exposes a health endpoint for deployment and monitoring. This makes the app easier to operate and debug.</p>
+            <p class="meta"><strong>Endpoints:</strong> GET /health</p>
+            <p class="meta"><strong>DB tables:</strong> auditlog, user</p>
+          </div>
+          <div class="feature-card">
+            <h3>Migration & Deployment Readiness</h3>
+            <p>Alembic migration structure and container support are included so the backend can grow beyond a simple prototype. This is important for maintainability and team collaboration.</p>
+            <p class="meta"><strong>Endpoints:</strong> N/A (database and deployment support)</p>
+            <p class="meta"><strong>DB tables:</strong> user, refreshtoken, passwordresettoken, emailverificationtoken, auditlog</p>
           </div>
         </div>
       </section>
