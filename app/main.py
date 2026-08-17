@@ -32,7 +32,7 @@ app.add_middleware(
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     logger.warning("Validation error for %s: %s", request.url.path, exc)
-    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+    return JSONResponse(status_code=422, content={"detail": exc.errors(include_context=False)})
 
 
 @app.exception_handler(Exception)

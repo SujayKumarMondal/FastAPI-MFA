@@ -8,10 +8,10 @@ from ..core import settings
 logger = logging.getLogger("app.email")
 
 
-def send_email(subject: str, body: str, to: str, html: Optional[str] = None) -> None:
+def send_email(subject: str, body: str, to: str, html: Optional[str] = None) -> bool:
     if not settings.EMAIL_HOST and not settings.EMAIL_HOST_USER:
         logger.info("Email delivery skipped because SMTP settings are not configured. To=%s", to)
-        return
+        return False
 
     msg = EmailMessage()
     msg["Subject"] = subject
@@ -29,14 +29,19 @@ def send_email(subject: str, body: str, to: str, html: Optional[str] = None) -> 
     username = settings.EMAIL_HOST_USER
     password = settings.EMAIL_HOST_PASSWORD
 
-    if use_tls:
-        with smtplib.SMTP(host, port) as server:
-            server.starttls()
-            if username and password:
-                server.login(username, password)
-            server.send_message(msg)
-    else:
-        with smtplib.SMTP(host, port) as server:
-            if username and password:
-                server.login(username, password)
-            server.send_message(msg)
+    try:
+        if use_tls:
+            with smtplib.SMTP(host, port) as server:
+                server.starttls()
+                if username and password:
+                    server.login(username, password)
+                server.send_message(msg)
+        else:
+            with smtplib.SMTP(host, port) as server:
+                if username and password:
+                    server.login(username, password)
+                server.send_message(msg)
+        return True
+    except (smtplib.SMTPException, OSError, ValueError) as exc:
+        logger.warning("Email delivery failed for %s: %s", to, exc)
+        return False
